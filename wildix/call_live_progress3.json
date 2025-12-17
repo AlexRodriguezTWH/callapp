@@ -1,0 +1,73 @@
+{
+  "id": "it_w000001_1721914831.368",
+  "pbx": "000000000001",
+  "company": "it_w000001",
+  "time": 1721914834620,
+  "type": "call:live:progress",
+  "integrationId": "pa67xt",
+  "data": {
+    "id": "it_w000001_1721914831.368",
+    "pbx": "000000000001",
+    "time": 1721914834555,
+    "company": "it_w000001",
+    "licenses": [
+      "x-bees"
+    ],
+    "event": "call",
+    "eventTrigger": "call.transcription",
+    "start": "2024-07-25T13:40:31.753Z",
+    "flows": [
+      {
+        "flowIndex": 0,
+        "duration": 0,
+        "connectTime": 324,
+        "talkTime": 0,
+        "waitTime": 252,
+        "caller": {
+          "type": "LOCAL",
+          "phone": "230",
+          "name": "John Doe",
+          "email": "johndoe@example.com",
+          "userId": "1236286",
+          "userExtension": "230",
+          "userDepartment": "Sales",
+          "groupId": "1238467",
+          "groupName": "Gamma",
+          "userAgent": "x-bees Web 1.75.0.990867 21f92f6c-91fb-4a85-8fd9-2671a769f290",
+          "userDevice": "XBEES_WEB",
+          "role": "AGENT",
+          "license": "premium"
+        },
+        "callee": {
+          "type": "REMOTE",
+          "phone": "+159255512345",
+          "name": "+159255512345",
+          "role": "CLIENT"
+        },
+        "destination": "+159255512345",
+        "direction": "OUTBOUND",
+        "trunkName": "SIPTRUNK",
+        "trunkDirection": "outgoing",
+        "tags": [
+          "External"
+        ],
+        "recordings": [
+          "2024.07.25-15.40.31-230-+159255512345[pbx]-3644f-0.wav"
+        ],
+        "recordingsData": [
+          {
+            "fileName": "2024.07.25-15.40.31-230-+159255512345[pbx]-3644f-0.wav",
+            "start": 1721914832404,
+            "end": 0,
+            "owner": "SYSTEM"
+          }
+        ],
+        "remotePhone": "+159255512345",
+        "transcriptionStatus": "AVAILABLE",
+        "transcriptionLanguage": "en-GB",
+        "status": "TALKING",
+        "statusChangeDate": "2024-07-25T13:40:32.253Z"
+      }
+    ]
+  }
+}

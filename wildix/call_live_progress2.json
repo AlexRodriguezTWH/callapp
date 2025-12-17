@@ -1,0 +1,54 @@
+{
+  "id": "it_w000001_1721914831.368",
+  "pbx": "000000000001",
+  "company": "it_w000001",
+  "time": 1721914832032,
+  "type": "call:live:progress",
+  "integrationId": "pa67xt",
+  "data": {
+    "id": "it_w000001_1721914831.368",
+    "pbx": "000000000001",
+    "time": 1721914831953,
+    "company": "it_w000001",
+    "licenses": [
+      "x-bees"
+    ],
+    "event": "call",
+    "eventTrigger": "call.update",
+    "start": "2024-07-25T13:40:31.753Z",
+    "flows": [
+      {
+        "flowIndex": 0,
+        "duration": 0,
+        "connectTime": 0,
+        "talkTime": 0,
+        "waitTime": 252,
+        "caller": {
+          "type": "LOCAL",
+          "phone": "230",
+          "name": "John Doe",
+          "email": "johndoe@example.com",
+          "userId": "1236286",
+          "userExtension": "230",
+          "userDepartment": "Sales",
+          "groupId": "1238467",
+          "groupName": "Gamma",
+          "userAgent": "x-bees Web 1.75.0.990867 21f92f6c-91fb-4a85-8fd9-2671a769f290",
+          "userDevice": "XBEES_WEB",
+          "role": "AGENT",
+          "license": "premium"
+        },
+        "destination": "+159255512345",
+        "direction": "INTERNAL",
+        "trunkName": "SIPTRUNK",
+        "trunkDirection": "outgoing",
+        "tags": [
+          "External"
+        ],
+        "remotePhone": "+159255512345",
+        "status": "CONNECTING",
+        "statusChangeDate": "2024-07-25T13:40:31.953Z"
+      }
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "it_w000001_1721984075.0",
+  "pbx": "000000000001",
+  "company": "it_w000001",
+  "time": 1721984076400,
+  "type": "call:live:progress",
+  "integrationId": "pa67xt",
+  "data": {
+    "id": "it_w119417_1721984075.0",
+    "pbx": "000000000001",
+    "time": 1721984076338,
+    "company": "it_w000001",
+    "licenses": [
+      "x-bees"
+    ],
+    "event": "call",
+    "eventTrigger": "call.start",
+    "start": "2024-07-26T08:54:36.337Z",
+    "flows": [
+      {
+        "flowIndex": 0,
+        "duration": 0,
+        "connectTime": 0,
+        "talkTime": 0,
+        "waitTime": 0,
+        "caller": {
+          "type": "LOCAL",
+          "phone": "230",
+          "name": "John Doe",
+          "email": "johndoe@example.com",
+          "userId": "1236286",
+          "userExtension": "230",
+          "userDepartment": "Sales",
+          "groupId": "1238467",
+          "groupName": "Gamma",
+          "userAgent": "x-bees Web 1.76.0.1000420 76c54617-c30a-4410-acd0-8d4657344284",
+          "userDevice": "XBEES_WEB",
+          "role": "AGENT",
+          "license": "premium"
+        },
+        "destination": "+159255512345",
+        "direction": "INTERNAL",
+        "remotePhone": "+159255512345",
+        "status": "HOLD"
+      }
+    ]
+  }
+}

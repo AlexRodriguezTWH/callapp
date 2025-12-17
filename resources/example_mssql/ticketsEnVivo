@@ -1,0 +1,71 @@
+<?php
+
+    $serverName = "tcp:10.0.1.11,1433";
+    $connectionOptions = array("Database"=>"TWH_TI", "Uid"=>"rgbsql", "PWD"=>"admin");
+
+	 $conn = sqlsrv_connect($serverName, $connectionOptions);
+
+
+   #$tsql  =  "SP_COLUMNS Tb_Tickets";
+   $tsql = "SELECT TOP 20 ID,Fechatms,IdExt,CallerID,Duracion,Plaza,Ruta,PuntoVenta FROM Tb_Tickets ORDER BY Fechatms DESC";
+	 $getProducts = sqlsrv_query($conn, $tsql);
+   #print_r($getProducts);
+
+
+	 //Error handling
+	 if ($getProducts == FALSE)
+	  die(FormatErrors(sqlsrv_errors()));
+
+	 while($row = sqlsrv_fetch_array($getProducts, SQLSRV_FETCH_ASSOC)){
+      print_r($row);
+      echo "<hr />";
+       // if($ctr>9)
+    	 //  break;
+       //
+    	 // $ctr++;
+    	 // echo($row['IdDID'] . ", ". $row['Nombre'] . " " . $row['DID']);
+    	 // echo("<br/>");
+    	 // $productCount++;
+	 }
+	 sqlsrv_free_stmt($getProducts);
+
+
+
+
+	 // $tsql = "INSERT INTO SalesLT.Product (Name, ProductNumber, StandardCost, ListPrice, SellStartDate) OUTPUT INSERTED.ProductID VALUES ('SQL New 1', 'SQL New 2', 0, 0, getdate())";
+	 // //Insert query
+	 // $insertReview = sqlsrv_query($conn, $tsql);
+	 // if($insertReview == FALSE)
+	 // die(FormatErrors( sqlsrv_errors()));
+
+	 // while($row = sqlsrv_fetch_array($insertReview, SQLSRV_FETCH_ASSOC))
+	 // {
+	 // echo($row['ProductID']);
+	 // }
+	 // sqlsrv_free_stmt($insertReview);
+	 // //Delete Query
+	 // //We are deleting the same record
+	 // $tsql = "DELETE FROM [SalesLT].[Product] WHERE Name=?";
+	 // $params = array("SQL New 1");
+   //
+	 // $deleteReview = sqlsrv_prepare($conn, $tsql, $params);
+	 // if($deleteReview == FALSE)
+	 // die(FormatErrors(sqlsrv_errors()));
+   //
+	 // if(sqlsrv_execute($deleteReview) == FALSE)
+	 // die(FormatErrors(sqlsrv_errors()));
+
+	function FormatErrors( $errors )
+	{
+	    /* Display errors. */
+	    echo "Error information: <br/>";
+
+	    foreach ( $errors as $error )
+	    {
+	        echo "SQLSTATE: ".$error['SQLSTATE']."<br/>";
+	        echo "Code: ".$error['code']."<br/>";
+	        echo "Message: ".$error['message']."<br/>";
+	    }
+	}
+
+?>

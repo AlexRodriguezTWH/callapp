@@ -1,0 +1,19 @@
+{
+  "id": "it_w000001_1721914831.368",
+  "pbx": "000000000001",
+  "company": "it_w000001",
+  "time": 1721914838621,
+  "type": "call:live:completed",
+  "integrationId": "pa67xt",
+  "data": {
+    "id": "it_w000001_1721914831.368",
+    "pbx": "000000000001",
+    "time": 1721914838558,
+    "company": "it_w000001",
+    "licenses": [
+      "x-bees"
+    ],
+    "event": "call_complete",
+    "flows": 1
+  }
+}
