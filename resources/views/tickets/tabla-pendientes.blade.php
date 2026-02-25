@@ -11,6 +11,7 @@
         <th>Pto Venta.</th>
         <th>Código Id.</th>
         <th>T. Servicio</th>
+        <th>Estado</th>
         <th>Motivo <br> LLamada</th>
         <th class="col-4">Observaciones</th>
         <th>Usuario</th>
@@ -59,6 +60,7 @@
           <td>{{ (isset($call->PV))? $call->PV->NombreAlmacen : "SN" }}</td>
           <td>{{ $call->CodigoIdentificacion }}</td>
           <td>{{ ( isset($call->Servicio) )? $call->Servicio->Descripcion : "-" }}</td>
+          <td>{{ ( isset($call->StatusTick) )? $call->StatusTick->Descrip : "-" }}</td>
           <td>{{ ( isset($call->MotivoLlamada) )? $call->MotivoLlamada->Descripcion : "-" }}</td>
           <td>
             <a href="#"

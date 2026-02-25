@@ -28,4 +28,8 @@ class EnVivo extends BaseModel
       return $this->hasOne('App\MotivosLlamada', 'IdMotivoLlamada' ,'IdMotivoLlamada');
     }
 
+    function StatusTick(){
+      return $this->hasOne('App\StatusTick', 'IdStat', 'IdStattick');
+    }
+
 }

@@ -47,7 +47,7 @@
           <tr>
             <td>{{ Form::label('fechacierre', 'Estado de ticket') }}</td>
             <td>
-              {{ Form::select('fechacierre', [date('Y-m-d H:i:s', time()) => 'Cerrar', '0' => 'Pendiente'] , 0, ['class' => 'form-control form-control-sm']) }}
+              {{ Form::select('IdStattick', $statusCatalog ?? [], $ticket->IdStattick, ['class' => 'form-control form-control-sm', 'id' => 'IdStattick']) }}
             </td>
           </tr>
       </tbody>

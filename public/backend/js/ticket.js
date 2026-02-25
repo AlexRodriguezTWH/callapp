@@ -215,8 +215,8 @@ $(document).on('click', '#btnPlayMonitor', function (e) {
 
 
 //Designa el estado del tickets
-$(document).on('change', '#fechacierre', function (e) {
-    //Si es pendiente = 0, si cerrado trae fecha y hora
+$(document).on('change', '#IdStattick', function (e) {
+    // Usa el estado real para decidir si se habilita el cierre
     var value = $(this).val();
     var tipoServicio = document.getElementById('inpt_servicios_edit');
     if (tipoServicio) {
@@ -297,7 +297,7 @@ $(document).on('change', '#inpt_motivos', function (e) {
 
 //--------------- Edicion ----------------------------------------------
 $(document).on('change', '#inpt_servicios_edit', function (e) {
-    var estatus = document.getElementById('fechacierre').value;
+    var estatus = document.getElementById('IdStattick').value;
     var value = $(this).val();
 
     document.getElementById("inpt_motivos_edit").innerHTML = "";
@@ -366,6 +366,7 @@ Metodo encargado de validar si se muestran o no los periodos de cierre "reales"
 function ValidaPeriodosCierre(esNuevo, tipoServicio, estado, limpiaCampo) {
     var trLlegadaReal = document.getElementById("trLlegadaReal");
     var trCerradaReal = document.getElementById("trCerradaReal");
+    var estadosCierre = ['3', '5']; // Cerrado o Resuelto
 
     const inputFechaFinal = document.querySelector('input[name="FechaFinal"]');
     const inputHora = document.getElementById('Hora_Final_Hora');
@@ -377,7 +378,7 @@ function ValidaPeriodosCierre(esNuevo, tipoServicio, estado, limpiaCampo) {
     //Si es TWH
     trCerradaReal.style.display = "none";
 
-    if (tipoServicio == 3 && estado != 0 && !esNuevo) { // 3, !=0, false
+    if (tipoServicio == 3 && estadosCierre.includes(String(estado)) && !esNuevo) { // 3, cerrado/resuelto
 
         trLlegadaReal.style.display = "none";
         trCerradaReal.style.display = "table-row";
@@ -488,8 +489,6 @@ function refreshMonitorAgua() {
     });
 
 }
-
-
 
 
 

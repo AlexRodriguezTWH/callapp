@@ -109,6 +109,11 @@ class TicketsController extends Controller{
     $fallaCliente =  null;
     $fallaTecnico =  null;
     $muestraCerradoTr= "N";
+    $statusCatalog = DB::connection('sqlsrv')
+        ->table('Tb_StatusTick')
+        ->select('IdStat', 'Descrip')
+        ->orderBy('IdStat')
+        ->pluck('Descrip', 'IdStat');
     $tipoServicioV  = ($ticket->TipoServicio);
     $plazas          = collect(Tickets::Plazas())->SortBy('NombreAlmacen')->pluck('NombreAlmacen','IdAlmacen');
     $datos           = collect(Tickets::PuntosdeVenta($ticket->IdPlaza))->prepend([null => "Opcion"]);
@@ -145,7 +150,7 @@ class TicketsController extends Controller{
                  $horaFinal = $hoursFinal.':'.$minutesFinal;
            }
     }
-    return view('tickets.show', compact('ticket','rutas','codigos','puntos','plazas','tiposDeServicio', 'motivo','fallasCliente','fallasTecnico', 'fallaCliente', 'fallaTecnico', 'muestraTr', 'muestraCerradoTr', 'fechaInicial', 'horaInicial', 'fechaFinal', 'horaFinal'));
+    return view('tickets.show', compact('ticket','rutas','codigos','puntos','plazas','tiposDeServicio', 'motivo','fallasCliente','fallasTecnico', 'fallaCliente', 'fallaTecnico', 'muestraTr', 'muestraCerradoTr', 'fechaInicial', 'horaInicial', 'fechaFinal', 'horaFinal', 'statusCatalog'));
   }
 
 
@@ -170,6 +175,11 @@ class TicketsController extends Controller{
     $muestraCerradoTr= "N";
     $fallasCliente = null;
     $fallasTecnico = null;
+    $statusCatalog = DB::connection('sqlsrv')
+        ->table('Tb_StatusTick')
+        ->select('IdStat', 'Descrip')
+        ->orderBy('IdStat')
+        ->pluck('Descrip', 'IdStat');
     # DATA TICKET
     $res['status'] = 'success';
 
@@ -217,7 +227,7 @@ class TicketsController extends Controller{
               }
           }// fin else if 
     }
-    $res['body']     = view('tickets.fragmentos.form', compact('ticket','rutas','codigos','puntos','plazas','tiposDeServicio', 'motivo','fallasCliente','fallasTecnico', 'muestraTr', 'muestraCerradoTr',  'fechaInicial', 'horaInicial', 'fechaFinal', 'horaFinal'))->render();
+    $res['body']     = view('tickets.fragmentos.form', compact('ticket','rutas','codigos','puntos','plazas','tiposDeServicio', 'motivo','fallasCliente','fallasTecnico', 'muestraTr', 'muestraCerradoTr',  'fechaInicial', 'horaInicial', 'fechaFinal', 'horaFinal', 'statusCatalog'))->render();
     $res['ticket']   = $ticket;
     return response()->json($res);
   }
@@ -294,21 +304,28 @@ class TicketsController extends Controller{
 
     }
 
-    if( isset($input['fechacierre']) && $input['fechacierre'] == '0'){
-      $ticket->IdStattick          = 2;
-      $ticket->fechacierre         = null;
-      $ticket->HoraCierre         = null;
-      $res['close']                = "nok";
-    }else{
-      $ticket->IdStattick          = 3;
+    $selectedStatus = $input['IdStattick'] ?? null;
+    if ($selectedStatus) {
+        $ticket->IdStattick = (int)$selectedStatus;
+    }
+
+    if( isset($selectedStatus) && in_array((int)$selectedStatus, [3,5])){
       if(isset($input['FechaFinal']) && isset($input['Hora_Final_Hora']) && isset($input['Hora_Final_Minutos']) && $input['TipoServicio'] ==3){
           $ticket->fechacierre         = $input['FechaFinal'];
           $ticket->HoraCierre          = date($input['Hora_Final_Hora'].':'.$input['Hora_Final_Minutos'].':00', time());
       }else{
-          $ticket->fechacierre         = $input['fechacierre'];
+          $ticket->fechacierre         = date("Y-m-d H:i:s", time());
           $ticket->HoraCierre          = date("H:i:s", time());
       }
       $res['close']                = "ok";
+    }else{
+      $ticket->fechacierre         = null;
+      $ticket->HoraCierre          = null;
+      // Si viene abierto/reabierto/tiempo real mantiene el status que trae
+      if(!isset($selectedStatus)){
+        $ticket->IdStattick          = 2;
+      }
+      $res['close']                = "nok";
     }
 
     // Aqui lo actualiza
