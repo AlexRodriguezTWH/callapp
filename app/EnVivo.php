@@ -10,7 +10,7 @@ class EnVivo extends BaseModel
     protected $table      = 'Tb_Tickets';
     public $timestamps    = false; 
     protected $primaryKey = 'ID';
-    protected $fillable   = ['IdCompania','Fechatms','IdExt','CallerID','Duracion','IdPlaza','Plaza','Ruta','PuntoVenta','CodigoIdentificacion','TipoServicio','IdMotivoLlamada','Observaciones','userid', 'IdFallaxCliente', 'IdFallaxTecnico'];
+    protected $fillable   = ['IdCompania','Fechatms','IdExt','CallerID','Duracion','IdPlaza','Plaza','Ruta','PuntoVenta','CodigoIdentificacion','TipoServicio','IdMotivoLlamada','Observaciones','userid', 'IdFallaxCliente', 'IdFallaxTecnico','statusChangeDate','flowData','callid'];
 
     function PV(){
       return $this->hasOne('App\PuntoDeVenta', 'IdAlmacen' ,'PuntoVenta');

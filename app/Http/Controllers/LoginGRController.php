@@ -47,7 +47,7 @@ class LoginGRController extends Controller
         $encryptedPassword = $data[0]->Contrasena;
         $nombre            = $data[0]->Nombre;
 
-        $java    = "C:\PROGRA~1\Java\jre1.8.0_471\bin\java.exe";
+        $java    = "C:\PROGRA~1\Java\jdk-13.0.2\bin\java.exe";
         $comando = $java . " -jar " . $authjar . " " . $usuario . " " . $input['pass']. " " . $SalContrasena . " " . $encryptedPassword ;
         #dd($comando);
         $process = Process::fromShellCommandline($comando);

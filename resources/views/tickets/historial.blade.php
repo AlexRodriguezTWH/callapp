@@ -62,7 +62,6 @@
                                   </b>
                                 </small>
                               </td>
-                              <!--<td>{{ (isset($call->Plaza))? $plaza->NombreAlmacen : "SP" }}</td> -->
                               <td>{{ $plaza->NombreAlmacen ?? "SP" }}</td>
                               <td>{{ $call->Ruta }}</td>
                               <td>{{ (isset($call->PV))? $call->PV->NombreAlmacen : "SN" }}</td>

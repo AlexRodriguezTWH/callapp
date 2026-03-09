@@ -11,7 +11,10 @@
   <link rel="stylesheet" href="{{ asset('js/plugins/fontawesome-free/css/all.min.css') }}">
   <link rel="stylesheet" href="{{ asset('adminlte/css/adminlte.min.css') }}">
   <link rel="stylesheet" href="{{ asset('js/plugins/toastr/toastr.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/waterhouse.css') }}">
+  <!--<link rel="stylesheet" href="{{ asset('css/waterhouse.css') }}">-->
+  <link rel="stylesheet" href="https://callcenter.thewaterhouse.com/css/waterhouse.css"> 
+
+
 <!-- Toastr -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

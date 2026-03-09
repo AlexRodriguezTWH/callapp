@@ -6,8 +6,9 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use Carbon\Carbon;
 use App\EnVivo;
+use App\PlazasWildix;
 
 
 
@@ -18,76 +19,316 @@ class WildixController extends Controller
 	}
 	public function index(Request $request){
       	
-      	$filename = '../storage/app/calls/data_' . date('Ymd', time()) . '.json';
-		//$data = $request->all();
+      	
+      	$payload = $request->all();
 
 
-	    $headers = apache_request_headers();
-		$jsonData = json_encode($headers, JSON_PRETTY_PRINT, 500);
-		$linea    = date("H:i:s", time()) . ":" . $jsonData . "\n";
-		$fp       = fopen($filename,"a+");
-		fwrite($fp, $linea);
-		fclose($fp);
+      	#LOG ----------------------------------------------------------------------------
+      	/*
+	     	$filename = '../storage/app/calls/data_' . date('Ymd', time()) . '.json';
+			$jsonData = json_encode($payload);
+		    $linea    = date("H:i:s", time()) . ": LOG DATA: " . $jsonData . "\n";
+	        $fp       = fopen($filename,"a+");
+		    fwrite($fp, $linea);
+		    fclose($fp);	
+		  */  
+		
+		#END LOG -------------------------------------------------------------------------
 
 
-		$jsonData = json_encode($request->all() );
-	    $linea    = date("H:i:s", time()) . ":" . $jsonData . "\n\n\n";
-	    
-	    $fp       = fopen($filename,"a+");
-	    fwrite($fp, $linea);
-	    fclose($fp);
+        // Campos base del payload
+        $connectTimeIso = null;
+        $id      		= isset($payload['id']) ? $payload['id'] : null;
+        $pbx     		= isset($payload['pbx']) ? $payload['pbx'] : null;
+        $company 		= isset($payload['company']) ? $payload['company'] : null;
+        $time    		= isset($payload['time']) ? $payload['time'] : null;
+        $type    		= isset($payload['type']) ? $payload['type'] : null;
+        $data    		= isset($payload['data']) ? $payload['data'] : [];
+        $event 			= isset($data['event']) ? $data['event'] : null;           // event/eventTrigger pueden no existir en algunos webhooks
+        $eventTrigger 	= isset($data['eventTrigger']) ? $data['eventTrigger'] : null;
+        $callerPhone 	= null; 
+        $destination 	= isset($data['destination']) ? $data['destination'] : null;
+        $status 		= isset($data['status']) ? $data['status'] : null;
+        $flowData       = null;
+        $flow0          = null;
+        $response       = null;
+        $connectTime 	= null;
 
- 		return response('OK Wildix', 200)->header('Content-Type', 'text/plain');
 
-	    /*
-		$array = json_decode(     file_get_contents("../storage/app/public/call_live_progress.json"), true      );
-		if( isset($array) ){
-			switch ($array['data']['event']) {
+         if (isset($data['flows'][0]) ){
+				$connectTimeIso = data_get($data, 'flows.0.statusChangeDate'); // Ej: "2025-11-11T00:59:20.863Z"
+
+
+	        	$flow0 = isset($data['flows'][0]) ? $data['flows'][0] : null;
+
+	        	$flow_data_json = json_encode([
+											        'talkTime' 		=> $flow0['talkTime'] ?? null,
+											        'queueTime' 	=> $flow0['queueTime'] ?? null,
+											        'holdTime'  	=> $flow0['holdTime'] ?? null,
+											        'duration'  	=> $flow0['duration'] ?? null,
+											        'connectTime' 	=> $flow0['connectTime'] ?? null,
+											    ]);   
+
+				$data['statusChangeDate'] 	= $connectTimeIso ?? null;
+				$data['flowData']          	= $flow_data_json ?? null;
+				$connectTime 				= $flow0['connectTime'] ?? null;
+         }
+
+        if (isset($data['caller']) && is_array($data['caller']) && isset($data['caller']['phone'])) {
+            $callerPhone = $data['caller']['phone'];
+
+        } elseif (isset($data['flows']) && is_array($data['flows']) && isset($data['flows'][0]['caller']['phone'])) {
+            $callerPhone = $data['flows'][0]['caller']['phone'];
+        	
+        } elseif (isset($data['flows']) && is_array($data['flows']) && isset($data['flows'][0]['caller']['phone'])) {
+            $callerPhone = $data['flows'][0]['caller']['phone'];
+        }
+
+        $data['id']= $id;
+        $data['company'] = $company;
+        $data['callerPhone']   	= $callerPhone;
+        $data['connectTime'] 	= $connectTime;
+        $data['json']   		= json_encode($payload);
+
+ 		if ($eventTrigger) { 
+            switch ($eventTrigger) {
+                case 'call.update':
+
+                	if($data['flowData'] != null && $data['statusChangeDate'] != null)
+                    	$response = $this->update($data);
+                break;
+                default:
+                    $response = array('status' => 'ignored eventTrigger');
+                    break;
+            }
+
+
+        #	CASE EVENT TYPE Y NO HAY EVENT TRIGGER
+        } else {
+
+        	
+
+        	
+        	//dd('NO HAY EVENTTRIGGER', $data);
+            switch ($type) {
+                case 'call:start':
+                    $response = $this->insert($data);
+
+                break;
+
+                case 'call:end':
+                    // cuando termina la llamada, envia el evento call:end
+                    $response = $this->update($data, true);
+                    break;
+
 				
-				#LLAMADA START/UPDATE
-				case 'call':
-				default:
-					$response = null;
-					switch(  isset($array['data']['eventTrigger'])  ){
-						#LLAMADA START
-						case 'call.start':
-							$response = $this->insert($array['data']);
-							//dd(   $response   );
-						break;
-						#LLAMADA UPDATE
-						case 'call.update':
-							$response = $this->update($array['data']);
-						break;
-					}
+                default:
+                    $response = array('status' => 'ignored type');
+                    break;
+            }
+            
+        }
 
-					#CONTROL DE RESPUESTA
-					if( $response['status'] == 'success' ){
-							return response('OK Wildix', 200)->header('Content-Type', 'text/plain');
-					}else{
-						return response('NOK Wildix', 200)->header('Content-Type', 'text/plain');
-					}
 
-					
+        #dd($type, $eventTrigger, $response);
+        $response['type'] = $type;
+        $response['eventTrigger'] = $eventTrigger;
+ 		return response( $response , 200)->header('Content-Type', 'text/plain');
 
-				break;
+	}
 
-				#LLAMADA COMPLETA
-				case 'call_complete':
-					$response = null;
 
-					if( $response['status'] == 'success' ){
-							return response('OK Wildix', 200)->header('Content-Type', 'text/plain');
-					}else{
-						return response('OK CALL-COMPLETE', 200)->header('Content-Type', 'text/plain');
-					}
+  	private function insert($params){
 
-				break;
+		
+		$nuevoTicket    = null;
+		$ticket 		= EnVivo::where('callid', $params['id'])->first();
+		$filename 		= '../storage/app/calls/data_' . date('Ymd', time()) . '.json';
+		$linea0   		= date("H:i:s", time()) . ": JSON DATA: " . $params['json'] . "\n";
+		$destination    = $params['destination'] ?? null;
+		$plaza          = $this->getPlaza($destination);
+
+		#dd($destination, $plaza, $ticket);
+		if( isset($ticket) ){   
+
+	        #LOG ----------------------------------------------------------------------------
+	        /*
+	        	
+				$jsonData = json_encode($ticket);
+
+			    $linea    = date("H:i:s", time()) . ": INSERT DOBLE TICKET: " . $jsonData . "\n\n\n";
+		        $fp       = fopen($filename,"a+");
+			    fwrite($fp, $linea);
+			    fclose($fp);
+			#END LOG ------------------------------------------------------------------------
+			*/
+			    return false;
+		}
+
+
+		$input['Fechatms'] 		= date('Y-m-d H:i:s.000', time());
+		$input['CallerID'] 		= $params['callerPhone'] ??   null ;
+		$input['Duracion'] 		= null;
+		$input['Plaza'] 		= $plaza['IdPlaza'];
+		$input['IdStattick'] 	= null;
+		$input['callid'] 		= $params['id'];
+		$input['IdPlaza'] 		= $plaza['IdPlaza'];
+		$input['IdCompania'] 	= $plaza['IdCompania'];
+		$input['IdExt'] 		= isset($params['flows'][0]['callee']['userExtension'])? $params['flows'][0]['callee']['userExtension'] : null ;
+		$input['statusChangeDate'] 	= ( isset( $params['statusChangeDate'] ) )? $params['statusChangeDate'] : null;
+		$input['flowData'] 			= ( isset( $params['flowData'] ) ) ?  $params['flowData']  : null;
+		#dd($input);
+
+        #LOG ----------------------------------------------------------------------------
+        	$filename = '../storage/app/calls/data_' . date('Ymd', time()) . '.json';
+			$jsonData = json_encode($input);
+			$linea0   = date("H:i:s", time()) . "  JSON DATA: " . $params['json'] . "\n" . $input['flowData']  . "\n";
+		    $linea    = date("H:i:s", time()) . ": INSERT DATA: " . $jsonData . "\n\n";
+	        $fp       = fopen($filename,"a+");
+
+	        fwrite($fp, $linea0);
+		    fwrite($fp, $linea);
+		    fclose($fp);
+		    
+		#END LOG ------------------------------------------------------------------------
+
+
+
+		#$nuevoTicket            = true; 
+		$nuevoTicket            = Envivo::create($input);
+		
+		if( isset($nuevoTicket) ){
+			$array['status'] = 'success';
+			$array['ticket'] = $input;
+		}else{
+			$array['status'] = 'error';
+		}
+
+		return $array;
+	}
+	private function update($params, $end = 0){ #>
+		
+
+
+		$ticket 		= null;
+		$diffInSeconds 	= null;
+
+		$ticket 		= EnVivo::where('callid', $params['id'])->first();
+		
+		$doit   		= null;
+		$now 			= Carbon::now(); // mejor usar UTC también para evitar desfases
+		
+		#$callee			= isset($params['callee'])? $params['callee']   : null;
+		#$userExtension 	= isset($callee['userExtension']) ? $callee['userExtension']      : null;
+		$userExtension      = data_get($params, 'flows.0.callee.userExtension') ?? 0;
+
+		#dd($ticket, $params, $params['id']);
+
+			#LOG ----------------------------------------------------------------------------
+	        	$filename = '../storage/app/calls/data_' . date('Ymd', time()) . '.json';
+		    #END LOG -------------------------------------------------------------------------
+
+
+
+		if( isset($ticket)  && ($params['connectTime'] != null || $end ) ){
+
+				$statusChangeDate 	= $now->format('Y-m-d H:i:s');
+
+
+				if($ticket->duracion <= 0){
+					$diffInSeconds 	= $this->diffInSecondsFromNow($ticket->Fechatms);
+				}else
+					$diffInSeconds  = $ticket->duracion;
+
+
+
+				if( isset($params['flowData']) && $params['flowData'] != null ){
+					$flow_data = $params['flowData'];
+				}else{
+					$flow_data = $ticket->flowData;
+				}
+
+
+				if( $ticket->IdExt != null || $ticket->IdExt != ""){
+					$userExtension = $ticket->IdExt;
+				}
+
+
+				$dataArrayUpdate = [
+					'statusChangeDate' => $statusChangeDate,
+					'flowData' => $flow_data,
+					'Duracion' => (int)$diffInSeconds,
+					'IdExt'    => $userExtension
+				];
+
+				$doit = $ticket->update($dataArrayUpdate);
+
+
+				#LOG ----------------------------------------------------------------------------
+				
+					$jsonData = json_encode($dataArrayUpdate);
+				    $linea0   = date("H:i:s", time()) . " " . $end . ": JSON DATA: " . $params['json'] . "\n";
+				    $linea    = date("H:i:s", time()) . " " . $end . ": UPDATE DATA: " . $jsonData . "\n";
+			        $fp       = fopen($filename,"a+");
+			        fwrite($fp, $linea0);
+				    fwrite($fp, $linea);
+				    fclose($fp);		
+				    	
+			    #END LOG -------------------------------------------------------------------------
+		}
+		
+		 
+		if( $doit  != null  ){
+			$array['status'] = 'success';
+			$array['ticket'] = $ticket;
+		}else{
+
+			#SI NO ENCUENTRA LA LLAMADA LA INSERTA Y ACTUALIZA LA DURACION
+			//dd( $ticket, $doit);
+			$array  = $this->insert($params);
+			if( !isset($array) ){
+				$array['status'] = 'error';
 			}
-		}#EN
-  		*/
 
-  		
-  	}
+		}
+		/*
+		#LOG ----------------------------------------------------------------------------
+			$jsonData = json_encode($array);
+			$linea    = date("H:i:s", time()) . ":       UPDATE RESPONSE: " . $jsonData . "\n\n\n";
+			$fp       = fopen($filename,"a+");
+			fwrite($fp, $linea);
+			fclose($fp);		
+		*/
+		#END LOG -------------------------------------------------------------------------
+
+		return $array;
+	}
+	private function getPlaza($company){
+		$cia = null;
+		$cia = PlazasWildix::where('clave', $company)->first();
+
+		if( !isset( $cia )){
+				$cia['IdPlaza']    = 'CJS';
+				$cia['IdCompania'] = 2;
+				return $cia;
+		}else{
+			return $cia;
+		}
+	}
+
+
+	private function diffInSecondsFromNow($dateString)
+	{
+	    try {
+	        $givenDate = Carbon::parse($dateString);
+	        $now = Carbon::now();
+	        return $now->diffInSeconds($givenDate);
+	    } catch (\Exception $e) {
+	        // En caso de que la fecha sea inválida
+	        return null;
+	    }
+	}
+
 
   	public function log($file){
   		$fileName = 'calls/data_' . $file . '.json';
@@ -99,63 +340,5 @@ class WildixController extends Controller
 	    }
 	    dd($existingData);
   	}
-  	private function insert($params){
-
-		$plaza                  = $this->getPlaza($params['company']);
-		$nuevoTicket            = null;
-
-		$input['Fechatms'] 		= date('Y-m-d H:i:s.000', time());
-		$input['CallerID'] 		= $params['flows'][0]['destination'];
-		$input['Duracion'] 		= $params['flows'][0]['duration'];
-		$input['Plaza'] 		= $plaza['IdPlaza'];
-		$input['IdStattick'] 	= '01';
-		$input['callid'] 		= $params['id'];
-		$input['IdPlaza'] 		= $plaza['IdPlaza'];
-		$input['IdCompania'] 	= $plaza['IdCompania'];
-		$input['IdExt'] 		= $params['flows'][0]['caller']['userExtension'];
-
-		$nuevoTicket            = true; # Envivo::create($input);
-		
-		if( isset($nuevoTicket) ){
-			$array['status'] = 'success';
-			$array['ticket'] = $input;
-		}else{
-			$array['status'] = 'error';
-		}
-
-		return $array;
-	}
-	private function update($params){ #>
-		$ticket = null;
-		$ticket = EnVivo::where('callid', $params['id'])->update(['Duracion' => $params['flows'][0]['duration'] ]);
-		
-		if( isset($ticket) ){
-			$array['status'] = 'success';
-			$array['ticket'] = $ticket;
-		}else{
-
-			#SI NO ENCUENTRA LA LLAMADA LA INSERTA Y ACTUALIZA LA DURACION
-			$call  = $this->insert($params);
-			if( isset($call) ){
-				$array['status'] = 'success';
-			}else{
-				$array['status'] = 'error';
-			}
-
-		}
-
-		return $array;
-	}
-	private function getPlaza($company){
-		switch ($company) {
-			case 'it_w000001':
-				$cia['IdPlaza']    = 'CJS';
-				$cia['IdCompania'] = 2;
-			break;
-		}
-		return $cia;
-	}
-
-
 
 }#END OF CLASS

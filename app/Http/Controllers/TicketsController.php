@@ -68,7 +68,10 @@ class TicketsController extends Controller{
       ->where('IdExt',"<",3000)
       ->where('Duracion',">",0)
       ->orderBy('Fechatms', 'Desc')
-      ->paginate(50);
+      ->paginate(50)
+      ->setPath(route('tickets.pendientes'));
+
+
       return view('tickets.pendientes', compact('llamadas'));
 
   }
@@ -78,7 +81,12 @@ class TicketsController extends Controller{
     $permiso = $this->controllerPermisos('opcion_page_historial');
     if(!$permiso)
       return redirect()->route('permiso.error')->with('error', 'No tienes permiso para acceder a esta opción');
-    $llamadas = EnVivo::whereNotNULL('fechacierre')->orderBy('Fechatms', 'Desc')->paginate(50);
+    $llamadas = EnVivo::whereNotNULL('fechacierre')
+    ->orderBy('Fechatms', 'Desc')
+    ->paginate(50)
+    ->withPath(url()->current());
+    
+
     return view('tickets.historial', compact('llamadas'));
   }
 

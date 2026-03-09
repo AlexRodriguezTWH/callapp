@@ -16,19 +16,6 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('/', function () {    return view('welcome');    })->name('login.index');
 
-// routes/web.php
-Route::get('/_diag/db', function () {
-    return response()->json([
-        'php_version' => PHP_VERSION,
-        'db_default' => config('database.default'),
-        'host' => config('database.connections.mysql.host'),
-        'port' => config('database.connections.mysql.port'),
-        'database' => config('database.connections.mysql.database'),
-        'username' => config('database.connections.mysql.username'),
-        'socket' => config('database.connections.mysql.unix_socket') ?? null,
-    ]);
-});
-
 Route::get('wildix/webhook', 'WildixController@indexget')->name('api.wildix.get');
 Route::post('wildix/webhook', 'WildixController@index')->name('api.wildix');
 Route::get('wildix/log/{file} ', 'WildixController@log')->name('api.wildix.log');

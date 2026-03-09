@@ -7,11 +7,13 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ asset('css/waterhouse.css') }}">
+  <!--<link rel="stylesheet" href="{{ asset('css/waterhouse.css') }}">-->
+  <link rel="stylesheet" href="https://callcenter.thewaterhouse.com/css/waterhouse.css"> 
 
 
     <title>Bienvenido a Sistema Call Center</title>
-    <link href="{{ asset('img/favicon.ico') }}" rel="SHORTCUT ICON"/>
+    
+    <link href="https://callcenter.thewaterhouse.com/img/favicon.ico" rel="SHORTCUT ICON" /> 
 
   </head>
   <body class="parallax">
